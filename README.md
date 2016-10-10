@@ -14,13 +14,13 @@ Forked from [athieriot/docker-klondike](https://github.com/athieriot/docker-klon
 ## Getting Started
 
 ```
-docker run -d -p 8080:8080 --name klondike xmik/klondike
+docker run -d -p 8080:8080 --name klondike aitraders/klondike
 ```
 
 ## Persist Package directory
 
 ```
-docker run -d -p 8080:8080 -v /path/to/packages/:/app/App_Data/Packages --name klondike xmik/klondike
+docker run -d -p 8080:8080 -v /path/to/packages/:/app/App_Data/Packages --name klondike aitraders/klondike
 ```
 
 ## Override configuration
@@ -31,7 +31,7 @@ docker run -d \
   -v /path/to/Settings.config:/app/Settings.config \
   -v /path/to/Web.config:/app/Web.config \
   --name klondike \
-  xmik/klondike
+  aitraders/klondike
 ```
 
 # Development
