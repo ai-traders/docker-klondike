@@ -4,7 +4,8 @@ ENV KLONDIKE_VERSION=v2.1.1
 ENV KLONDIKE_BUILD=2.1.1.22ea5477-build156
 
 RUN apt-get update && \
-    apt-get install wget unzip mono-4.0-service && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
+    wget unzip mono-4.0-service && \
     rm -rf /var/cache/apt/*
 
 RUN mkdir /app && cd /app && wget https://github.com/themotleyfool/Klondike/releases/download/${KLONDIKE_VERSION}/Klondike.${KLONDIKE_BUILD}.zip -O /app/Klondike.${KLONDIKE_BUILD}.zip && \
@@ -13,7 +14,7 @@ RUN mkdir /app && cd /app && wget https://github.com/themotleyfool/Klondike/rele
 EXPOSE 8080
 
 COPY Settings.config /app/Settings.config
-COPY variables.sh /etc/docker-image-variables.sh
+COPY etc_ide.d /etc/ide.d
 
 WORKDIR /app/bin
 CMD ["mono", "/usr/lib/mono/4.5/mono-service.exe", "./Klondike.SelfHost.exe", "--port=8080"]

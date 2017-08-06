@@ -1,0 +1,76 @@
+#!/bin/bash
+
+if [[ ! -f ./releaser ]];then
+  wget --quiet http://http.archive.ai-traderssss.com/releaser/1.0.0/releaser
+fi
+source ./releaser
+releaser_init
+set -e # do not let above result in non 0 exit status, so that some tasks, like build, work for everyone
+
+image_name="docker-registry.ai-traders.com/klondike"
+image_dir="./image"
+version_file="./image/etc_ide.d/variables/60-variables.sh"
+
+command="$1"
+case "${command}" in
+  set_version)
+      if [[ -n "$2" ]]; then
+        next_version="$2"
+        set_next_oversion "${next_version}"
+      else
+        next_version=$(get_next_oversion)
+      fi
+      set_version_in_changelog "${changelog_file}" "${next_version}"
+      exit $?
+      ;;
+  verify_version)
+      verify_version_for_release
+      exit $?
+      ;;
+  build)
+      # 1. This is an automated build on docker hub, so we cannot have complicated
+      # build script or use --build-arg.
+      # 2. Also, since it is a public github repo, the non-release commands must
+      # be invocable for anyone.
+      source "${version_file}"
+      cd "${image_dir}"
+      docker build -t ${this_image_name}:${this_image_tag} --rm .
+      exit $?
+      ;;
+  itest)
+      source "${version_file}"
+      echo "Testing image: ${this_image_name}:${this_image_tag}"
+
+      # Just check that the image is runnable and can run for 5 seconds
+      docker run -it -d -p 8080:8080 --name klondike ${this_image_name}:${this_image_tag}
+      sleep 5
+      if [[ $(docker inspect -f {{.State.Running}} klondike) != "true" ]]; then
+        echo "Container: klondike is not running"
+        # do not remove the container, so that its logs can be checked later
+        exit 1
+      fi
+      docker stop klondike && docker rm klondike
+      
+      exit $?
+      ;;
+  release)
+      verify_version_for_release
+      git_tag_from_oversion
+      old_version=$(get_next_oversion)
+      next_version=$(bump_patch_version "${old_version}")
+      set_next_oversion "${next_version}"
+      exit $?
+      ;;
+  publish)
+      production_image_tag=$(get_last_version_from_changelog "${changelog_file}")
+      validate_version_is_semver "${production_image_tag}"
+      source_imagerc "${image_dir}"  "${imagerc_filename}"
+      docker_push "${AIT_DOCKER_IMAGE_NAME}" "${AIT_DOCKER_IMAGE_TAG}" "${production_image_tag}"
+      exit $?
+      ;;
+  *)
+      echo "Invalid command: '${command}'"
+      exit 1
+      ;;
+esac
+set +e
