@@ -1,0 +1,39 @@
+#!/bin/bash
+
+command="$1"
+case "${command}" in
+  run)
+      # Installs dependencies
+      dotnet restore
+      # Runs the C# program, it prints: Welcome to Dummy.TestPackage!
+      dotnet run
+      exit $?
+      ;;
+  run_in_ide)
+      # We use a public dotnet core docker image here, thus the need to change current
+      # directory. '-c' is for /bin/bash entrypoint (see Idefile).
+      ide -- -c "cd /ide/work && ./tasks run"
+      exit $?
+      ;;
+  package)
+      # Installs dependencies
+      dotnet restore
+      # Creates a NuGet package:
+      # /ide/work/bin/Debug/Dummy.TestPackage.0.1.331.nupkg
+      # The `<version>0.1.331</version>` in `.nuspec` file is ignored,
+      # so set it in the command below.
+      dotnet pack /p:PackageVersion=0.1.331
+      exit $?
+      ;;
+  package_in_ide)
+      # We use a public dotnet core docker image here, thus the need to change current
+      # directory. '-c' is for /bin/bash entrypoint (see Idefile).
+      ide -- -c "cd /ide/work && ./tasks package"
+      exit $?
+      ;;
+  *)
+      echo "Invalid command: '${command}'"
+      exit 1
+      ;;
+esac
+set +e

@@ -1,0 +1,4 @@
+IDE_DOCKER_IMAGE="microsoft/dotnet:1.1.2-sdk-1.0.4"
+# share the docker network which that server uses, so that
+# `ping klondike-itest` reaches the test klondike server
+IDE_DOCKER_OPTIONS="--entrypoint=/bin/bash --net=klondike-itest-net"
