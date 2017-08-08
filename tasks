@@ -40,17 +40,7 @@ case "${command}" in
   itest)
       source "${version_file}"
       echo "Testing image: ${this_image_name}:${this_image_tag}"
-
-      # Just check that the image is runnable and can run for 5 seconds
-      docker run -it -d -p 8080:8080 --name klondike ${this_image_name}:${this_image_tag}
-      sleep 5
-      if [[ $(docker inspect -f {{.State.Running}} klondike) != "true" ]]; then
-        echo "Container: klondike is not running"
-        # do not remove the container, so that its logs can be checked later
-        exit 1
-      fi
-      docker stop klondike && docker rm klondike
-      
+      time bats "$(pwd)/test/integration/bats"
       exit $?
       ;;
   release)
