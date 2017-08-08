@@ -1,6 +1,6 @@
 # Dummy.TestPackage
 
-A C# project used to test docker-klondike.
+A C# project to test Klondike as a NuGet server.
 
 It is used to create a simple NuGet package to be published onto a local klondike server.
 

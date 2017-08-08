@@ -17,4 +17,5 @@ COPY Settings.config /app/Settings.config
 COPY etc_ide.d /etc/ide.d
 
 WORKDIR /app/bin
-CMD ["mono", "/usr/lib/mono/4.5/mono-service.exe", "./Klondike.SelfHost.exe", "--port=8080"]
+# https://github.com/themotleyfool/Klondike/issues/156#issuecomment-229798239
+CMD ["mono-service", "Klondike.SelfHost.exe", "--no-daemon", "--port=8080"]

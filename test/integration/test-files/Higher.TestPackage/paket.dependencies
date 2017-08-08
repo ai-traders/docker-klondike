@@ -1,0 +1,3 @@
+source http://klondike-itest:8080/api/odata
+
+nuget System.Collections
